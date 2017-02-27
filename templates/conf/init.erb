@@ -1,0 +1,80 @@
+#!/bin/sh
+#
+# chkconfig: 345 99 01
+# description: zookeeper
+#
+# File : zookeeper
+#
+# Description: Starts and stops the zookeeper server
+#
+
+source /etc/rc.d/init.d/functions
+
+ZOO_HOME=<%= scope.lookupvar("zookeeper::zoo_dir")%>
+ZOO_USER=<%= scope.lookupvar("zookeeper::user") %>
+ZOO_CONFIG_DIR=<%= scope.lookupvar("zookeeper::cfg_dir") %>
+export LOG_DIR=<%= scope.lookupvar("zookeeper::log_dir") %>
+
+[ -e /etc/sysconfig/zookeeper ] && . /etc/sysconfig/zookeeper
+
+start(){
+    echo -n "starting zookeeper.."
+    /sbin/runuser -s /bin/sh $ZOO_USER -c "ZOO_LOG_DIR=$LOG_DIR ZOOCFGDIR=$ZOO_CONFIG_DIR nohup $ZOO_HOME/bin/zkServer.sh start >> $LOG_DIR/server.out 2> $LOG_DIR/server.err &"
+    echo "start done."
+    return 0
+}
+
+stop(){
+    echo -n "stopping zookeeper:"
+    /sbin/runuser -s /bin/sh $ZOO_USER -c "ps -ef|grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill"
+    echo "stop done."
+    return 0
+}
+
+hardstop(){
+    echo -n "stopping zookeeper:"
+    /sbin/runuser -s /bin/sh $ZOO_USER -c "ps -ef|grep org.apache.zookeeper.server.quorum.QuorumPeerMain | grep -v grep | awk '{print \$2}' | xargs kill -9"
+    echo "hard stop done."
+    reutrn 0
+}
+
+status(){
+    c_pid=`ps -ef|grep org.apache.zookeeper.server.quorum.QuorumPeerMain |grep -v grep | awk '{print $2}'`
+    if [ "$c_pid" = "" ] ; then
+      echo "stopped"
+      exit 3
+    else
+      echo "running $c_pid"
+      exit 0
+    fi
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  hardstop)
+    hardstop
+    ;;
+
+  status)
+    status
+    ;;
+
+  restart)
+    stop
+    sleep 2
+    start
+    ;;
+
+  *)
+    echo "Usage: zookeeper {start|stop|hardstop|status|restart}"
+    exit 1
+    ;;
+
+esac

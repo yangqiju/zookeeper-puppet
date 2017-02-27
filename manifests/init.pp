@@ -1,0 +1,52 @@
+# class zookeeper
+class zookeeper(
+  $ensure                  = $::zookeeper::params::ensure,
+  $group                   = $::zookeeper::params::group,
+  $packages                = $::zookeeper::params::packages,
+  $user                    = $::zookeeper::params::user,
+  $pid_file                = $::zookeeper::params::pid_file,
+  $service_ensure          = $::zookeeper::params::service_ensure,
+  $service_name            = $::zookeeper::params::service_name,
+  $cfg_dir                 = $::zookeeper::params::cfg_dir,
+  $client_ip               = $::zookeeper::params::client_ip,
+  $client_port             = $::zookeeper::params::client_port,
+  $datastore               = $::zookeeper::params::datastore,
+  $datalogstore            = $::zookeeper::params::datalogstore,
+  $election_port           = $::zookeeper::params::election_port,
+  $export_tag              = $::zookeeper::params::export_tag,
+  $id                      = $::zookeeper::params::id,
+  $init_limit              = $::zookeeper::params::init_limit,
+  $initialize_datastore    = $::zookeeper::params::initialize_datastore,
+  $leader                  = $::zookeeper::params::leader,
+  $leader_port             = $::zookeeper::params::leader_port,
+  $log_dir                 = $::zookeeper::params::log_dir,
+  $manual_clean            = $::zookeeper::params::manual_clean,
+  $max_session_timeout     = $::zookeeper::params::max_session_timeout,
+  $min_session_timeout     = $::zookeeper::params::min_session_timeout,
+  $observers               = $::zookeeper::params::observers,
+  $purge_interval          = $::zookeeper::params::purge_interval,
+  $servers                 = $::zookeeper::params::servers,
+  $snap_count              = $::zookeeper::params::snap_count,
+  $snap_retain_count       = $::zookeeper::params::snap_retain_count,
+  $sync_limit              = $::zookeeper::params::sync_limit,
+  $tick_time               = $::zookeeper::params::tick_time,
+  $use_sasl_auth           = $::zookeeper::params::use_sasl_auth,
+  $zoo_dir                 = $::zookeeper::params::zoo_dir,
+  $zoo_main                = $::zookeeper::params::zoo_main,
+  $environment_file        = $::zookeeper::params::environment_file,
+  $log4j_prop              = $::zookeeper::params::log4j_prop,
+  $max_allowed_connections = $::zookeeper::params::max_allowed_connections,
+  $peer_type               = $::zookeeper::params::peer_type,
+  $rollingfile_threshold   = $::zookeeper::params::rollingfile_threshold,
+  $tracefile_threshold     = $::zookeeper::params::tracefile_threshold,
+  $console_threshold       = $::zookeeper::params::console_threshold,
+  $keytab_path             = $::zookeeper::params::keytab_path,
+  $principal               = $::zookeeper::params::principal,
+) inherits zookeeper::params {
+  class { 'zookeeper::install': }->
+  class { 'zookeeper::config': }
+
+  class { 'zookeeper::service':
+    require => Class['::zookeeper::config'],
+  }
+}

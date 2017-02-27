@@ -1,0 +1,30 @@
+tickTime=<%= scope.lookupvar("zookeeper::tick_time") %>
+initLimit=<%= scope.lookupvar("zookeeper::init_limit") %>
+syncLimit=<%= scope.lookupvar("zookeeper::sync_limit") %>
+dataDir=<%= scope.lookupvar("zookeeper::datastore") %>
+clientPort=<%= scope.lookupvar("zookeeper::client_port") %>
+
+<%- if scope.lookupvar("zookeeper::servers").is_a?(Hash) -%>
+    <%- _servers = scope.lookupvar("zookeeper:servers") -%>
+<% else -%>
+    <%- _servers = Hash.new -%>
+    <%- scope.lookupvar("zookeeper::servers").map.each_with_index {|e,i| _servers[i + 1] = e } -%>
+<%- end -%>
+<%- _servers.each_pair do |id, host| -%>
+<%# make sure port is not included in hostname -%>
+    <%- if host.index(':') -%>
+       <%- host = host[0...(host.index(':'))] -%>
+    <%- end -%>
+<%= "server.#{id}=#{host}:%s:%s" % [scope.lookupvar("zookeeper::election_port"),scope.lookupvar("zookeeper::leader_port")] %>
+<%- end -%>
+
+<% if ! [nil, :undefined, :undef].include?(scope.lookupvar("zookeeper::max_allowed_connections")) -%>
+maxClientCnxns=<%= scope.lookupvar("zookeeper::max_allowed_connections") %>
+<% else -%>
+#maxClientCnxns=60
+<% end -%>
+
+<% if ! [nil, :undefined, :undef ].include?(scope.lookupvar("zookeeper::max_session_timeout")) -%>
+<% else -%>
+#maxSessionTimeout=29
+<% end -%>
